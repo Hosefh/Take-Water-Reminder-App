@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-	Text,
-	View,
-	StyleSheet,
-	Button,
-	TouchableOpacity,
-	ScrollView,
-} from "react-native";
-import { LongPressGestureHandler, State } from "react-native-gesture-handler";
-// import PushNotification from "react-native-push-notification";
+import { Text, View, StyleSheet, Button, TouchableOpacity, ScrollView } from "react-native";
+import PushNotification from "react-native-push-notification";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Drawer from "react-native-drawer";
@@ -165,19 +157,7 @@ const ReminderScreen = () => {
 		} catch (error) {
 			console.error("Error getting reminders:", error);
 		}
-  };
-  
-  const deleteReminder = async (id) => {
-  try {
-    const app = getFirebaseApp();
-    const firestore = getFirestore(app);
-
-    await deleteDoc(doc(firestore, "reminders", id));
-    console.log("Reminder deleted successfully");
-  } catch (error) {
-    console.error("Error deleting reminder:", error.message);
-  }
-};
+	};
 
 	const toggleDrawer = () => {
 		requestPermissions();
@@ -186,11 +166,10 @@ const ReminderScreen = () => {
 
 	return (
 		<View style={styles.container}>
-			<Button
-				title={isDrawerOpen ? "Close" : "Add New"}
-				onPress={toggleDrawer}
-				style={styles.addBtn}
-			/>
+			<Text style={styles.headerText}>Scheduled Reminders</Text>
+			<Text style={styles.subHeaderText}>
+				Create a reminder schedule for you.
+			</Text>
 			<Drawer
 				open={isDrawerOpen}
 				onClose={() => setDrawerOpen(false)}
@@ -233,25 +212,27 @@ const ReminderScreen = () => {
 				}
 			>
 				<ScrollView>
-  {reminders.length === 0 ? (
-    <Text>No reminders added.</Text>
-  ) : (
-    reminders.map((reminder, index) => (
-      
-        <View style={styles.card} key={index}>
-          <Text style={styles.timeText}>
-            {reminder.time && reminder.time.toDate
-              ? reminder.time.toDate().toLocaleTimeString()
-              : ""}
-          </Text>
-          <Text style={styles.daysText}>
-            {reminder.days ? reminder.days.join(", ") : ""}
-          </Text>
-        </View>
-    ))
-  )}
-</ScrollView>
+					{reminders.length === 0 ? (
+						<Text></Text>
+					) : (
+						reminders.map((reminder) => (
+							<View key={reminder.id} style={styles.card}>
+								<Text style={styles.timeText}>
+									{reminder.time && reminder.time.toDate
+										? reminder.time.toDate().toLocaleTimeString()
+										: ""}
+								</Text>
+								<Text style={styles.daysText}>
+									{reminder.days ? reminder.days.join(", ") : ""}
+								</Text>
+							</View>
+						))
+					)}
+				</ScrollView>
 			</Drawer>
+			<TouchableOpacity onPress={toggleDrawer} style={styles.floatingButton}>
+				<Text style={styles.floatingButtonLabel}>+</Text>
+			</TouchableOpacity>
 		</View>
 	);
 };
@@ -263,18 +244,11 @@ const styles = StyleSheet.create({
 		alignItems: "stretch",
 		padding: 10,
 	},
-	main: {
-		padding: 4,
-		marginTop: 4,
-	},
-	mainHeaderText: {
-		marginTop: 4,
-		padding: 2,
-		fontSize: 20,
+	headerText: {
+		fontSize: 22,
 		fontWeight: "bold",
 	},
-	mainBodyText: {
-		padding: 2,
+	subHeaderText: {
 		fontSize: 16,
 	},
 	drawerContent: {
@@ -340,7 +314,7 @@ const styles = StyleSheet.create({
 		justifyContent: "space-around",
 		alignItems: "start",
 		overflow: "hidden",
-		backgroundColor: "white", // Adjust opacity here (0 = fully transparent, 1 = fully opaque)
+		backgroundColor: "white",
 		padding: 8,
 		marginTop: 14,
 	},
@@ -350,6 +324,23 @@ const styles = StyleSheet.create({
 	},
 	daysText: {
 		fontSize: 18,
+	},
+	floatingButton: {
+		position: "absolute",
+		bottom: 16,
+		right: 16,
+		backgroundColor: "rgba(51, 110, 123, 1)",
+		width: 56,
+		height: 56,
+		borderRadius: 28,
+		justifyContent: "center",
+		alignItems: "center",
+		elevation: 3,
+	},
+	floatingButtonLabel: {
+		color: "white",
+		fontSize: 24,
+		fontWeight: "bold",
 	},
 });
 

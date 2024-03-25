@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   welcomeText: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
   },
   userIcon: {
