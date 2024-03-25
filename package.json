@@ -35,7 +35,8 @@
     "react-native-screens": "~3.22.0",
     "react-redux": "^9.0.4",
     "validate.js": "^0.13.1",
-    "lottie-react-native": "5.1.6"
+    "lottie-react-native": "5.1.6",
+    "expo-notifications": "~0.20.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

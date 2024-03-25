@@ -85,7 +85,7 @@ const Signup = ({ navigation }) => {
         />
         <Text style={{ ...FONTS.h2, color: COLORS.white }}>Sign Up</Text>
         <Text style={{ ...FONTS.body2, color: COLORS.gray }}>
-          Sign up now for free and start meditating, and explore Medic.
+          Sign up now to start reminding yourself to drink water.
         </Text>
         <View style={{ marginVertical: 22 }}>
           <Input
