@@ -1,0 +1,30 @@
+{
+    "project_info": {
+      "project_number": "261356705156",
+      "firebase_url": "https://web-project-b5872-default-rtdb.asia-southeast1.firebasedatabase.app",
+      "project_id": "web-project-b5872",
+      "storage_bucket": "web-project-b5872.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:261356705156:android:c5c2a519de8879c158f9d1",
+          "android_client_info": {
+            "package_name": "com.dawn.WaterIntakeApp"
+          }
+        },
+        "oauth_client": [],
+        "api_key": [
+          {
+            "current_key": "AIzaSyCdkVqgTLkykW0isXJ_1-z8mM1JCyS15K4"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": []
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }

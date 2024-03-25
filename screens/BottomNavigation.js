@@ -19,8 +19,8 @@ const BottomNavigation = () => {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Settings') {
             iconName = focused ? 'settings' : 'settings-outline';
-          } else if (route.name === 'Add') {
-            iconName = 'add-circle';
+          } else if (route.name === 'Schedule') {
+            iconName = 'time-outline';
           }
 
           // You can return any component that you like here!
@@ -31,7 +31,7 @@ const BottomNavigation = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Add" component={AddScreen} />
+      <Tab.Screen name="Schedule" component={AddScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
