@@ -26,7 +26,7 @@ const Dashboard = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>Welcome, USER!</Text>
+        <Text style={styles.welcomeText}>Welcome User!</Text>
         <TouchableOpacity onPress={() => setShowDropdown(!showDropdown)}>
           <Image
             source={require("../assets/images/userIcon.png")} // Replace with your user icon image
@@ -47,9 +47,9 @@ const Dashboard = () => {
       </ImageBackground>
       <View style={styles.main}>
         <Text style={styles.mainHeaderText}>My Activity</Text>
-        <Text style={styles.mainBodyText}>Water intake estimated volume</Text>
-        <TouchableOpacity style={styles.card}>
-          <Text style={styles.cardText}>Records</Text>
+        <Text style={styles.mainBodyText}>Total glass of water consumed</Text>
+        <TouchableOpacity style={styles.activityCard}>
+          <Text style={styles.activityCardText}>4</Text>
           <LottieView
             autoPlay
             ref={animation}
@@ -59,7 +59,12 @@ const Dashboard = () => {
           />
         </TouchableOpacity>
       </View>
-      <View style={styles.main}>
+      <Text style={styles.mainHeaderText}>Reminder History..</Text>
+      <Text style={styles.mainBodyText}>History 1</Text>
+      <Text style={styles.mainBodyText}>History 2</Text>
+      <Text style={styles.mainBodyText}>History 3</Text>
+      <Text style={styles.mainBodyText}>History 4</Text>
+      {/* <View style={styles.main}>
         <Text style={styles.mainHeaderText}>Reminder History..</Text>
         <TouchableOpacity style={styles.card}>
           <Text style={styles.cardText}>Records</Text>
@@ -71,7 +76,7 @@ const Dashboard = () => {
             source={require("../assets/images/waterReminder.json")}
           />
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 };
@@ -121,12 +126,13 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
   },
-  lottie: {
-    width: 200,
-    height: 200,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  // lottie: {
+  //   width: 150,
+  //   height: 150,
+  //   justifyContent: "flex-start",
+  //   alignItems: "flex-start",
+  //   overflow: "hidden",
+  // },
   card: {
     width: "100%",
     height: 200,
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "start",
     overflow: "hidden",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Adjust opacity here (0 = fully transparent, 1 = fully opaque)
+    backgroundColor: "white", // Adjust opacity here (0 = fully transparent, 1 = fully opaque)
   },
   cardText: {
     fontSize: 18,
@@ -145,6 +151,23 @@ const styles = StyleSheet.create({
     // textShadowRadius: 2, // Shadow blur radius
     marginLeft: 10,
     marginTop: 140,
+  },
+  activityCard: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    backgroundColor: '#f0f0f0', 
+    padding: 20, 
+    borderRadius: 10, 
+  },
+  activityCardText: {
+    fontSize: 102,
+    fontWeight: 'bold',
+    marginRight: 10, 
+  },
+  lottie: {
+    width: 150, 
+    height: 150, 
   },
   main: {
     padding: 4,
@@ -157,7 +180,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   mainBodyText: {
-    padding: 2,
+    padding: 4,
     fontSize: 16,
   },
 });

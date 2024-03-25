@@ -81,7 +81,7 @@ const Login = ({ navigation }) => {
         />
         <Text style={{ ...FONTS.h2, color: COLORS.white }}>Sign In</Text>
         <Text style={{ ...FONTS.body2, color: COLORS.gray }}>
-        Sign in now to acces your excercises and saved music.
+        Sign in now to acces your water schedule reminders.
         </Text>
         <View style={{ marginVertical: 22 }}>
           <Input
