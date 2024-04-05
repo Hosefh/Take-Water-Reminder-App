@@ -48,6 +48,10 @@ const ReminderScreen = () => {
 		}
 	};
 
+	useEffect(() => {
+		requestPermissions();
+	}, []);
+
 	const scheduleReminderNotification = async (reminder) => {
 		await Notifications.scheduleNotificationAsync({
 			content: {
@@ -121,6 +125,8 @@ const ReminderScreen = () => {
 			await scheduleReminderNotification(reminderData);
 
 			// display data to card
+			setSelectedDays([]);
+			setSelectedTime("");
 
 			setIsLoading(false);
 
@@ -160,7 +166,6 @@ const ReminderScreen = () => {
 	};
 
 	const toggleDrawer = () => {
-		requestPermissions();
 		setDrawerOpen(!isDrawerOpen);
 	};
 
@@ -181,14 +186,8 @@ const ReminderScreen = () => {
 							onPress={showTimePicker}
 							style={styles.selectButton}
 						>
-							<Text style={styles.selectButtonText}>Select Time</Text>
+							<Text style={styles.selectButtonText}>{selectedTime ? selectedTime.toLocaleTimeString() : "Select Time"}</Text>
 						</TouchableOpacity>
-						<View>
-							<Text>
-								Selected Time:{" "}
-								{selectedTime ? selectedTime.toLocaleTimeString() : ""}
-							</Text>
-						</View>
 						<DateTimePickerModal
 							isVisible={isTimePickerVisible}
 							mode="time"
@@ -206,7 +205,7 @@ const ReminderScreen = () => {
 						<Button
 							title={"Save"}
 							onPress={saveReminder}
-							isLoading={isLoading}
+							disabled={isLoading}
 						/>
 					</View>
 				}
@@ -254,6 +253,7 @@ const styles = StyleSheet.create({
 	drawerContent: {
 		flex: 1,
 		padding: 20,
+		backgroundColor: "rgba(255, 255, 255,0.9)"
 	},
 	drawerTitle: {
 		fontSize: 18,
@@ -268,6 +268,8 @@ const styles = StyleSheet.create({
 	},
 	selectButtonText: {
 		textAlign: "center",
+		fontWeight: "bold",
+		fontSize: 28,
 	},
 	dayButtons: {
 		flexDirection: "row",

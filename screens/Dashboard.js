@@ -7,20 +7,27 @@ import {
   ImageBackground,
   Image,
 } from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
+import { ProgressBar } from 'react-native-paper';
 import LottieView from "lottie-react-native";
 
 import userIcon from "../assets/images/userIcon.png";
-import CardImage from "../assets/images/drink.jpg";
+import CardImage from "../assets/images/card_background.jpg";
 
-const Dashboard = () => {
+const Dashboard = ({ navigation }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const animation = useRef(null);
 
   const handleLogout = () => {
-    // Perform logout logic here
+    // try {
+    //   await signOut(); // Sign out the user using Firebase auth
+    //   console.log('User logged out successfully');
+    //   // You can navigate to the login screen or any other screen after logout if needed
+    // } catch (error) {
+    //   console.error('Error logging out:', error.message);
+    // }
+    navigation.navigate('Login');
   };
 
   return (
@@ -43,7 +50,13 @@ const Dashboard = () => {
         </View>
       )}
       <ImageBackground source={CardImage} style={styles.card}>
-        <Text style={styles.cardText}>Stay hydrated, stay refreshed.</Text>
+        {/* <Text style={styles.cardTextHeader}>Good Day, User</Text> */}
+        <Text style={styles.cardTextHeader}>Estimated Volume</Text>
+        <Text style={styles.cardTextNumber}>4</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <ProgressBar progress={0.4} color={'white'} style={{ flex: 1, height: 8}} />
+        <Text style={styles.cardText}>Total glass of water consumed today</Text>
+      </View>
       </ImageBackground>
       <View style={styles.main}>
         <Text style={styles.mainHeaderText}>My Activity</Text>
@@ -142,15 +155,25 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: "white", // Adjust opacity here (0 = fully transparent, 1 = fully opaque)
   },
-  cardText: {
+  cardTextHeader: {
     fontSize: 18,
     fontWeight: "bold",
     color: "white",
-    // textShadowColor: "black", // Shadow color
-    // textShadowOffset: { width: 1, height: 1 }, // Shadow offset
-    // textShadowRadius: 2, // Shadow blur radius
     marginLeft: 10,
-    marginTop: 140,
+    padding: 8
+  },
+  cardText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "white",
+    marginLeft: 10,
+    padding: 8
+  },
+  cardTextNumber: {
+    fontSize: 82,
+    color: "white",
+    fontWeight: "bold",
+    paddingLeft: 20
   },
   activityCard: {
     flexDirection: 'row', 
@@ -161,9 +184,9 @@ const styles = StyleSheet.create({
     borderRadius: 10, 
   },
   activityCardText: {
-    fontSize: 102,
+    fontSize: 82,
     fontWeight: 'bold',
-    marginRight: 10, 
+    marginLeftt: 10, 
   },
   lottie: {
     width: 150, 

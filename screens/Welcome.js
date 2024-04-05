@@ -15,8 +15,6 @@ const Welcome = ({ navigation }) => {
                    style={styles.logo}
                 />
                 <Text style={styles.title}>Welcome</Text>
-                <Text style={styles.subtitle}>Lorem ipsum dolor.</Text>
-                <Text style={styles.subtitle}>Joseph Brendon Jon.</Text>
 
                 <View style={{ marginTop: 72 }}>
                 <Button 
@@ -62,7 +60,9 @@ const styles = StyleSheet.create({
         color: COLORS.white
     },
     btn: {
-        width: SIZES.width - 44
+        width: SIZES.width - 44,
+        backgroundColor: '#1877F2',
+        border: 'none'
     },
     bottomContainer: { 
         flexDirection: "row", 

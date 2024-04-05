@@ -115,7 +115,18 @@ const Login = ({ navigation }) => {
             <Text style={{ ...FONTS.body3, color: COLORS.white }}>
               Don't have an account ? {" "}
             </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
+            <TouchableOpacity onPress={() => navigation.navigate("Signup")}
+             style={{
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5, // This property adds shadow on Android
+            }}
+            >
               <Text style={{ ...FONTS.h3, color: COLORS.white }}>Sign Up</Text>
             </TouchableOpacity>
           </View>
