@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Button, TouchableOpacity, ScrollView } from "react-native";
+import {
+	Text,
+	View,
+	StyleSheet,
+	Button,
+	TouchableOpacity,
+	ScrollView,
+	Alert,
+} from "react-native";
 import PushNotification from "react-native-push-notification";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -12,9 +20,12 @@ import {
 	setDoc,
 	addDoc,
 	getDocs,
+	deleteDoc,
+	updateDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import * as Notifications from "expo-notifications";
+import { presentNotificationAsync } from "expo-notifications";
 
 const ReminderScreen = () => {
 	const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
@@ -23,23 +34,19 @@ const ReminderScreen = () => {
 	const [isDrawerOpen, setDrawerOpen] = useState(false);
 	const [reminders, setReminders] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [lastReminderTime, setLastReminderTime] = useState(null);
+	const [reminded, setReminded] = useState(false);
+	const [reminderCount, setReminderCount] = useState(0);
+	const [previousReminderCount, setPreviousReminderCount] = useState(0);
+	const [deletePressed, setDeletePressed] = useState(false);
 
 	useEffect(() => {
 		getReminders();
-	}, [isLoading]);
-
-	useEffect(() => {
-		const subscription = Notifications.addNotificationResponseReceivedListener(
-			(response) => {
-				console.log(response.notification);
-				// Handle notification interaction...
-			}
-		);
-
-		return () => {
-			subscription.remove();
-		};
-	}, []);
+		if (!reminded && reminders.length > 0) {
+			countRemindersRemindedToday(reminders);
+			setPreviousReminderCount(reminderCount);
+		}
+	}, [reminders, reminded]);
 
 	const requestPermissions = async () => {
 		const { status } = await Notifications.requestPermissionsAsync();
@@ -52,18 +59,6 @@ const ReminderScreen = () => {
 		requestPermissions();
 	}, []);
 
-	const scheduleReminderNotification = async (reminder) => {
-		await Notifications.scheduleNotificationAsync({
-			content: {
-				title: "Reminder",
-				body: "Time to do drink your water!",
-			},
-			trigger: {
-				date: reminder.time,
-			},
-		});
-	};
-
 	const showTimePicker = () => {
 		setTimePickerVisibility(true);
 	};
@@ -75,6 +70,16 @@ const ReminderScreen = () => {
 	const handleTimeConfirm = (time) => {
 		setSelectedTime(time);
 		hideTimePicker();
+	};
+
+	const formatTime = (time) => {
+		const hours = time.getHours();
+		const minutes = time.getMinutes();
+		const ampm = hours >= 12 ? "PM" : "AM";
+		const formattedHours = hours % 12 || 12;
+		return `${formattedHours.toString().padStart(2, "0")}:${minutes
+			.toString()
+			.padStart(2, "0")} ${ampm}`;
 	};
 
 	const handleDaySelect = (day) => {
@@ -114,17 +119,30 @@ const ReminderScreen = () => {
 				throw new Error("User not authenticated");
 			}
 
+			const selectedHour = selectedTime.getHours();
+			const selectedMinutes = selectedTime.getMinutes();
+
 			const reminderData = {
-				time: selectedTime,
+				time: selectedTime.getTime(), // Save selectedTime as a timestamp
 				days: selectedDays,
+				reminded: false,
 			};
+
+			// console.log("selected time: " + selectedTime);
 
 			await addDoc(collection(firestore, "reminders"), reminderData);
 
-			// Schedule the notification
-			await scheduleReminderNotification(reminderData);
+			// Schedule the thank you message notification
+			presentNotificationAsync({
+				title: "Water Intake Reminder",
+				body: "Thank you for letting me remind you",
+				trigger: {
+					seconds: 2, // Send the thank you message 2 seconds after setting the reminder
+				},
+				// You can add other options like sound, badge, etc. here
+			});
 
-			// display data to card
+			// Display data to card
 			setSelectedDays([]);
 			setSelectedTime("");
 
@@ -134,6 +152,102 @@ const ReminderScreen = () => {
 		} catch (error) {
 			console.error("Error saving reminder:", error.message);
 			setIsLoading(false);
+		}
+	};
+
+	const sendReminderNotification = (reminder) => {
+		const { time } = reminder;
+		const scheduledTime = new Date(time);
+
+		try {
+			presentNotificationAsync({
+				title: "Water Intake Reminder",
+				body: "Its time to drink water!",
+				// allowWhileIdle: true,
+			});
+
+			// Update reminded state
+			setReminded(false);
+		} catch (error) {
+			console.error("Error sending notification:", error);
+		}
+	};
+
+	// const countRemindersRemindedToday = async (reminders) => {
+	// 	const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+	// 	const d = new Date();
+	// 	const currentDay = weekday[d.getDay()];
+
+	// 	try {
+	// 	  for (const reminder of reminders) {
+	// 		const { time, days } = reminder;
+	// 		const scheduledTime = new Date(time);
+	// 		const scheduledDay = scheduledTime.getDay();
+
+	// 		if (
+	// 		  days.includes(currentDay) &&
+	// 		  scheduledDay === d.getDay() &&
+	// 		  !reminded
+	// 		) {
+	// 		  const currentTime = new Date();
+	// 		  if (scheduledTime < currentTime) {
+	// 			// sendReminderNotification(reminder);
+	// 				console.log('Inom nag tubig waa ka!');
+	// 			if (!lastReminderTime || scheduledTime > lastReminderTime) {
+	// 				  setLastReminderTime(scheduledTime);
+	// 			}
+	// 			setReminded(true);
+	// 		  }
+	// 		}
+	// 	  }
+	// 	} catch (error) {
+	// 	  console.error("Error counting reminders reminded today:", error);
+	// 	}
+	//   };
+	const countRemindersRemindedToday = async (reminders) => {
+		const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+		const d = new Date();
+		const currentDay = weekday[d.getDay()];
+
+		let count = 0;
+
+		for (const reminder of reminders) {
+			const { time, days } = reminder;
+			const scheduledTime = new Date(time);
+			const scheduledDay = scheduledTime.getDay();
+
+			// Check if the reminder is scheduled for today and has already been reminded
+			if (days.includes(currentDay) && scheduledDay === d.getDay()) {
+				const currentTime = new Date();
+				if (scheduledTime < currentTime) {
+					count++;
+					if (!lastReminderTime || scheduledTime > lastReminderTime) {
+						setLastReminderTime(scheduledTime);
+					}
+				}
+			}
+		}
+		// console.log('New Reminder COunt', count);
+		setReminderCount(count);
+		pahinumdom();
+	};
+
+	const pahinumdom = () => {
+		// console.log('PreviousCount',previousReminderCount)
+		// if (reminderCount !== previousReminderCount) {
+		// 	console.log('Inom na oii');
+		// }
+		try {
+			// console.log("DeletePressed?", deletePressed);
+			if (reminderCount !== previousReminderCount && deletePressed === false) {
+				presentNotificationAsync({
+					title: "Water Intake Reminder",
+					body: "Hello, Time to drink your water!",
+					allowWhileIdle: true,
+				});
+			}
+		} catch (error) {
+			console.error("Error sending notification:", error);
 		}
 	};
 
@@ -153,7 +267,8 @@ const ReminderScreen = () => {
 					const reminderData = doc.data();
 					remindersData.push({ id: doc.id, ...reminderData });
 
-					console.log("Reminder Data:", reminderData);
+					// console.log("DeletePressed on Get?", deletePressed);
+					setDeletePressed(false);
 				} else {
 					console.log("No reminder data found");
 				}
@@ -162,6 +277,19 @@ const ReminderScreen = () => {
 			setReminders(remindersData);
 		} catch (error) {
 			console.error("Error getting reminders:", error);
+		}
+	};
+
+	const handleDelete = async (id) => {
+		setDeletePressed(true);
+		try {
+			const app = getFirebaseApp();
+			const firestore = getFirestore(app);
+
+			await deleteDoc(doc(firestore, "reminders", id));
+			getReminders();
+		} catch (error) {
+			console.error("Error deleting reminder:", error);
 		}
 	};
 
@@ -186,7 +314,9 @@ const ReminderScreen = () => {
 							onPress={showTimePicker}
 							style={styles.selectButton}
 						>
-							<Text style={styles.selectButtonText}>{selectedTime ? selectedTime.toLocaleTimeString() : "Select Time"}</Text>
+							<Text style={styles.selectButtonText}>
+								{selectedTime ? formatTime(selectedTime) : "Select Time"}
+							</Text>
 						</TouchableOpacity>
 						<DateTimePickerModal
 							isVisible={isTimePickerVisible}
@@ -212,19 +342,40 @@ const ReminderScreen = () => {
 			>
 				<ScrollView>
 					{reminders.length === 0 ? (
-						<Text></Text>
+						<Text>No reminders found</Text>
 					) : (
 						reminders.map((reminder) => (
-							<View key={reminder.id} style={styles.card}>
+							<TouchableOpacity key={reminder.id} style={styles.card}>
 								<Text style={styles.timeText}>
-									{reminder.time && reminder.time.toDate
-										? reminder.time.toDate().toLocaleTimeString()
-										: ""}
+									{reminder.time ? formatTime(new Date(reminder.time)) : ""}
 								</Text>
 								<Text style={styles.daysText}>
 									{reminder.days ? reminder.days.join(", ") : ""}
 								</Text>
-							</View>
+								<Ionicons
+									name="trash-outline"
+									size={24}
+									color="rgba(51, 110, 123, 1)"
+									onPress={() =>
+										Alert.alert(
+											"Delete Reminder",
+											"Are you sure you want to delete this reminder?",
+											[
+												{
+													text: "Cancel",
+													style: "cancel",
+												},
+												{
+													text: "OK",
+													onPress: () => handleDelete(reminder.id),
+												},
+											],
+											{ cancelable: true }
+										)
+									}
+									style={styles.deleteIcon}
+								/>
+							</TouchableOpacity>
 						))
 					)}
 				</ScrollView>
@@ -253,7 +404,7 @@ const styles = StyleSheet.create({
 	drawerContent: {
 		flex: 1,
 		padding: 20,
-		backgroundColor: "rgba(255, 255, 255,0.9)"
+		backgroundColor: "rgba(255, 255, 255,0.9)",
 	},
 	drawerTitle: {
 		fontSize: 18,
@@ -303,12 +454,6 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		color: "white",
 	},
-	addBtn: {
-		borderRadius: 5,
-		marginVertical: 5,
-		marginHorizontal: 2,
-		padding: 2,
-	},
 	card: {
 		width: "100%",
 		height: 100,
@@ -343,6 +488,11 @@ const styles = StyleSheet.create({
 		color: "white",
 		fontSize: 24,
 		fontWeight: "bold",
+	},
+	deleteIcon: {
+		position: "absolute",
+		bottom: 8,
+		right: 8,
 	},
 });
 

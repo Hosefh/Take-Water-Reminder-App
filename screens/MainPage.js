@@ -15,6 +15,7 @@ const MainPage = () => {
       {/* <Dashboard /> */}
       <Tab.Navigator
         screenOptions={({ route }) => ({
+          headerShown: false,
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
 
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'stretch',
-    // marginTop: 50,
+    marginTop: 50,
   },
 });
 

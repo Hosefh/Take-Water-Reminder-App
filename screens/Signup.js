@@ -41,26 +41,32 @@ const Signup = ({ navigation }) => {
 
 
   
-  const authHandler = async ()=>{
-    try{
+  const authHandler = async () => {
+    try {
       setIsLoading(true);
       const action = signUp(
-        formState.inputValues.fullName, 
-        formState.inputValues.email, 
+        formState.inputValues.fullName,
+        formState.inputValues.email,
         formState.inputValues.password
-        )
-      await dispatch(action);
-      Alert.alert("Account Successfully created","Account Created!")
-      setError(null)
-      setIsLoading(false)
-      navigation.navigate("Login")
-     
-    }catch(error){
+      );
+      Alert.alert("Account Successfully created", "Account Created!");
+      setError(null);
+      setIsLoading(false);
+      navigation.navigate("Login");
+      const result = await dispatch(action);
+      if (result && result.error) {
+        throw new Error(result.error);
+      }
+      
+      
+    } catch (error) {
       console.log(error);
       setIsLoading(false);
-      setError(error.message)
+      setError(error.message);
     }
   }
+  
+  
 
   useEffect(() => {
     if (error) {
