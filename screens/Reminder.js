@@ -24,6 +24,7 @@ import {
 	updateDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { ref, set, update, getDatabase } from "firebase/database";
 import * as Notifications from "expo-notifications";
 import { presentNotificationAsync } from "expo-notifications";
 
@@ -39,6 +40,7 @@ const ReminderScreen = () => {
 	const [reminderCount, setReminderCount] = useState(0);
 	const [previousReminderCount, setPreviousReminderCount] = useState(0);
 	const [deletePressed, setDeletePressed] = useState(false);
+	const [minAgo, setMinAgo] = useState(false);
 
 	useEffect(() => {
 		getReminders();
@@ -227,29 +229,98 @@ const ReminderScreen = () => {
 				}
 			}
 		}
+
+		const oneMinuteAgo = new Date();
+		oneMinuteAgo.setMinutes(oneMinuteAgo.getMinutes() - 1);
+
+		if (lastReminderTime && lastReminderTime < oneMinuteAgo) {
+			setMinAgo(true);
+		} else {
+			setMinAgo(false);
+		}
 		// console.log('New Reminder COunt', count);
 		setReminderCount(count);
 		pahinumdom();
 	};
 
-	const pahinumdom = () => {
-		// console.log('PreviousCount',previousReminderCount)
-		// if (reminderCount !== previousReminderCount) {
-		// 	console.log('Inom na oii');
-		// }
+	// const pahinumdom = async() => {
+	// 	// console.log('PreviousCount',previousReminderCount)
+	// 	// if (reminderCount !== previousReminderCount) {
+	// 	// 	console.log('Inom na oii');
+	// 	// }
+	// 	const app = getFirebaseApp();
+	// 		const firestore = getFirestore(app);
+	// 		const auth = getAuth(app);
+
+	// 		const user = auth.currentUser;
+	// 		if (!user) {
+	// 			throw new Error("User not authenticated");
+	// 	}
+	// 	const remindNowDocRef = doc(firestore, "remindNow", 'RJ7YhtNODlLIobtCM0cN');
+
+	// 	try {
+	// 		// console.log("DeletePressed?", deletePressed);
+	// 		if (reminderCount !== previousReminderCount && deletePressed === false) {
+	// 			presentNotificationAsync({
+	// 				title: "Water Intake Reminder",
+	// 				body: "Hello, Time to drink your water!",
+	// 				allowWhileIdle: true,
+	// 			});
+	// 			let data = {
+	// 				reminded_already: true
+	// 			}
+
+	// 			// await updateDoc(remindNowDocRef, { reminded_already: true });
+	// 			try {
+	// 				await updateDoc(remindNowDocRef, { reminded_already: true });
+	// 				console.log("Document updated successfully");
+	// 			  } catch (error) {
+	// 				console.error("Error updating document: ", error);
+	// 			  }
+	// 		}
+	// 	} catch (error) {
+	// 		console.error("Error sending notification:", error);
+	// 	}
+	// };
+
+	const pahinumdom = async () => {
+		const app = getFirebaseApp();
+		const auth = getAuth(app);
+	
+		const user = auth.currentUser;
+		if (!user) {
+			throw new Error("User not authenticated");
+		}
+	
+		const database = getDatabase(app);
+		const remindNowRef = ref(database, "remindNow/RJ7YhtNODlLIobtCM0cN");
+		// console.log('MinAgo sa pahinumdom', minAgo);
+	
 		try {
-			// console.log("DeletePressed?", deletePressed);
 			if (reminderCount !== previousReminderCount && deletePressed === false) {
-				presentNotificationAsync({
-					title: "Water Intake Reminder",
-					body: "Hello, Time to drink your water!",
-					allowWhileIdle: true,
-				});
+				let data = {
+					reminded_already: true,
+				};
+	
+				try {
+					try {
+						presentNotificationAsync({
+							title: "Water Intake Reminder",
+							body: "Hello, Time to drink your water!",
+							allowWhileIdle: true,
+						});
+					} catch (error) { 
+						console.log(error.message);
+					}
+				} catch (error) {
+					console.error("Error updating document:", error);
+				}
 			}
 		} catch (error) {
 			console.error("Error sending notification:", error);
 		}
 	};
+	
 
 	const getReminders = async () => {
 		try {
@@ -268,6 +339,36 @@ const ReminderScreen = () => {
 					remindersData.push({ id: doc.id, ...reminderData });
 
 					// console.log("DeletePressed on Get?", deletePressed);
+					// console.log('minAgo?', minAgo);
+					if (minAgo === true) {
+						const database = getDatabase(app);
+						const remindNowRef = ref(database, "remindNow/RJ7YhtNODlLIobtCM0cN");
+
+						let data = {
+							reminded_already: false,
+						};
+		
+						try {
+							update(remindNowRef, data); // Use set method for Realtime Database
+							// console.log("Document updated successfully: FALSE");
+						} catch (error) {
+							console.log("Error saving document");
+						}
+					} else {
+						const database = getDatabase(app);
+						const remindNowRef = ref(database, "remindNow/RJ7YhtNODlLIobtCM0cN");
+
+						let data = {
+							reminded_already: true,
+						};
+		
+						try {
+							update(remindNowRef, data); // Use set method for Realtime Database
+							// console.log("Document updated successfully: TRUE");
+						} catch (error) {
+							console.log("Error saving document");
+						}
+					}
 					setDeletePressed(false);
 				} else {
 					console.log("No reminder data found");
